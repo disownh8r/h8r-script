@@ -80,7 +80,85 @@ end
 -- Main Tab Functions
 
 
+getgenv().bangSpeed = 1
 
+local function findPlayerByName(name)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.DisplayName:lower() == name:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+local function bang_plr_bypass(target)
+    if getgenv().bangScriptLoaded then
+        Fluent:Notify({
+            Title = "Failed",
+            Content = "Already loaded bang bypass!",
+            Duration = 5
+        })
+        return
+    end
+
+    getgenv().bangScriptLoaded = true
+    getgenv().enabled = true
+    getgenv().unload = false
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+    local bangAnim = Instance.new("Animation")
+    bangAnim.AnimationId = "rbxassetid://5918726674"
+    local bang = Humanoid:LoadAnimation(bangAnim)
+    bang.Looped = true
+    bang:Play(0.1, 1, 1)
+
+    getgenv().bangAnimation = bang
+
+    getgenv().bangLoop = RunService.Stepped:Connect(function()
+        if getgenv().unload then
+            bang:Stop()
+            bangAnim:Destroy()
+            getgenv().bangScriptLoaded = false
+            return
+        end
+
+        if bang.Speed ~= getgenv().bangSpeed then
+            bang:AdjustSpeed(getgenv().bangSpeed)
+        end
+
+        if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
+            HumanoidRootPart.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 1.1)
+        end
+    end)
+
+    getgenv().bangDied = Humanoid.Died:Connect(function()
+        bang:Stop()
+        bangAnim:Destroy()
+        getgenv().bangScriptLoaded = false
+    end)
+end
+
+local function bang_plr_bypass_off()
+    if getgenv().bangLoop then getgenv().bangLoop:Disconnect() end
+    if getgenv().bangDied then getgenv().bangDied:Disconnect() end
+
+    if getgenv().bangAnimation then
+        getgenv().bangAnimation:Stop()
+        getgenv().bangAnimation:Destroy()
+        getgenv().bangAnimation = nil
+    end
+
+    getgenv().bangScriptLoaded = false
+    getgenv().unload = nil
+    getgenv().enabled = false
+end
 
 
 local BangPlayerInput = Tabs.Main:AddInput("BangPlayerInput", {
@@ -114,6 +192,18 @@ local BangPlayerInput = Tabs.Main:AddInput("BangPlayerInput", {
             })
             warn("Player not found.")
         end
+    end
+})
+
+local BangPlayerSpeedSlider = Tabs.Main:AddSlider("BangPlayerSpeedSlider", {
+    Title = "Bang Player Speed",
+    Description = "Adjust the speed of banging the player",
+    Default = 1,
+    Min = 0.1,
+    Max = 20,
+    Rounding = 1,
+    Callback = function(Value)
+        getgenv().bangSpeed = Value
     end
 })
 
