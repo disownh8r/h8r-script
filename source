@@ -925,6 +925,7 @@ Tabs.Scripts:AddButton({
 local vc_service = game:GetService("VoiceChatService")
 local enabled_vc = vc_service:IsVoiceEnabledForUserIdAsync(game.Players.LocalPlayer.UserId)
 local vc_inter = game:GetService("VoiceChatInternal")
+local retryCooldown = 3
 
 local VcBanProtectionToggle = Tabs.Protections:AddToggle("VcBanProtectionToggle", 
 {
@@ -984,6 +985,18 @@ if enabled_vc then
         Duration = 5 -- Set to nil to make the notification not disappear
     })
 end
+
+local RetryCooldownSlider = Tabs.Protections:AddSlider("RetryCooldownSlider", {
+    Title = "Reconnect Cooldown",
+    Description = "Adjust the cooldown time for reconnecting to VC.",
+    Default = 3,
+    Min = 0.1,
+    Max = 5,
+    Rounding = 1,
+    Callback = function(Value)
+        retryCooldown = Value
+    end
+})
 
 Tabs.Protections:AddButton({
     Title = "Force VC Unban",
