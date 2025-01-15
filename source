@@ -897,7 +897,15 @@ Tabs.Scripts:AddButton({
     Title = "Draw In Chat",
     Description = "Credit: AK Admin",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AKadminlol/Chatdraw/refs/heads/main/Chattdraw"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/disownh8r/h8r-script/master/scripts/chatdrawscript"))()
+    end
+})
+
+Tabs.Scripts:AddButton({
+    Title = "Emote GUI",
+    Description = "Credit: Gi#7331",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/disownh8r/h8r-script/master/scripts/emotescript"))()
     end
 })
 
