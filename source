@@ -2,10 +2,10 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-
+local version = "v0.1"
 
 local Window = Fluent:CreateWindow({
-    Title = "h8r " .. Fluent.Version,
+    Title = "h8r " .. version,
     SubTitle = "by monte",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
@@ -27,6 +27,7 @@ local Tabs = {
     Movement = Window:AddTab({ Title = "Movement", Icon = "accessibility"}),
     Teleports = Window:AddTab({ Title = "Teleports", Icon = "map-pin"}),
     Animations = Window:AddTab({ Title = "Animations", Icon = "person-standing"}),
+    Scripts = Window:AddTab({ Title = "Scripts", Icon = "scroll"}),
     Protections = Window:AddTab({ Title = "Protections", Icon = "shield" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
@@ -271,18 +272,14 @@ local SpinSpeedSlider = Tabs.Main:AddSlider("SpinSpeedSlider", {
 
 local Players = game:GetService("Players")
 
--- Function to print all player usernames
 local function printAllPlayerUsernames()
-    -- Retrieve the list of players
     local playerList = Players:GetPlayers()
     
-    -- Iterate through the list and print each player's username
     for _, player in ipairs(playerList) do
         print(player.Name)
     end
 end
 
--- Call the function to print usernames
 printAllPlayerUsernames()
 
 local baseplate
@@ -302,7 +299,7 @@ local function createBaseplate()
     texture.StudsPerTileU = 10
     texture.StudsPerTileV = 10
     texture.Face = Enum.NormalId.Top
-    texture.Color3 = Color3.fromRGB(114, 229, 114) -- Set the color of the texture
+    texture.Color3 = Color3.fromRGB(114, 229, 114)
     texture.Parent = baseplate
 end
 
@@ -629,13 +626,13 @@ local TpToPlayerInput = Tabs.Teleports:AddInput("TpToPlayerInput", {
             Fluent:Notify({
                 Title = "Notification",
                 Content = "Teleported to " .. displayName,
-                Duration = 5 -- Set to nil to make the notification not disappear
+                Duration = 5
             })
         else
             Fluent:Notify({
                 Title = "Notification",
                 Content = "Failed to find player: " .. displayName,
-                Duration = 5 -- Set to nil to make the notification not disappear
+                Duration = 5
             })
             warn("Player not found or invalid target.")
         end
@@ -893,6 +890,25 @@ for title, pack in pairs(animationPacks) do
         end
     })
 end
+
+-- Scripts Tab Functions
+
+Tabs.Scripts:AddButton({
+    Title = "Draw In Chat",
+    Description = "Credit: AK Admin",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AKadminlol/Chatdraw/refs/heads/main/Chattdraw"))()
+    end
+})
+
+
+Tabs.Scripts:AddButton({
+    Title = "Infinite Yield",
+    Description = "Credit: EdgeIY",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end
+})
 
 
 
