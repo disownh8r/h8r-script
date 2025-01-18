@@ -404,7 +404,7 @@ local function stopFlying()
 end
 
 mouse.KeyDown:Connect(function(key)
-    if key == "f" then
+    if key == "f" and FlyToggle.Value then
         if flying then
             stopFlying()
         else
@@ -919,6 +919,14 @@ Tabs.Scripts:AddButton({
 })
 
 
+Tabs.Scripts:AddButton({
+    Title = "Hug Script",
+    Description = "Launch the Hug Script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/JSFKGBASDJKHIOAFHDGHIUODSGBJKLFGDKSB/fe/refs/heads/main/FEHUGG"))()
+    end
+})
+
 
 -- Protections Tab Functions
 
@@ -987,7 +995,7 @@ if enabled_vc then
 end
 
 local RetryCooldownSlider = Tabs.Protections:AddSlider("RetryCooldownSlider", {
-    Title = "Reconnect Cooldown",
+    Title = "Reconnect Cooldown",   
     Description = "Adjust the cooldown time for reconnecting to VC.",
     Default = 3,
     Min = 0.1,
@@ -1029,9 +1037,11 @@ Tabs.Developer:AddButton({
 })
 
 Tabs.Developer:AddButton({
-    Title = "Infinite Yield",
-    Description = "Opens Infinite Yield",
+    Title = "Rejoin Server",
+    Description = "Rejoins the current server",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+        local ts = game:GetService("TeleportService")
+        local p = game:GetService("Players").LocalPlayer
+        ts:Teleport(game.PlaceId, p)
     end
 })
