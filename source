@@ -1,8 +1,14 @@
+pcall(function()
+    Fluent:Destroy()
+end)
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local version = "v0.3"
+
+
+local version = "v0.5"
 
 local h8rThemePath = "/theme/h8r-theme"
 
@@ -10,12 +16,13 @@ local Window = Fluent:CreateWindow({
     Title = "h8r " .. version,
     SubTitle = "by monte",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    Size = UDim2.fromOffset(550, 550),
     Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = h8rThemePath,
     MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
+-- Developer Checks
 
 local developerScript = false
 local localPlayer = game.Players.LocalPlayer
@@ -24,28 +31,34 @@ if localPlayer.Name == "ImTesco" or localPlayer.Name == "dxsown" then
     developerScript = true
 end
 
+-- Tab Creation
+
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "compass"}),
-    Exploits = Window:AddTab({ Title = "Exploits", Icon = "ghost"}),
     Movement = Window:AddTab({ Title = "Movement", Icon = "accessibility"}),
+    Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye"}),
+    Exploits = Window:AddTab({ Title = "Exploits", Icon = "ghost"}),
     Teleports = Window:AddTab({ Title = "Teleports", Icon = "map-pin"}),
-    Animations = Window:AddTab({ Title = "Animations", Icon = "person-standing"}),
+    Freaky = Window:AddTab({ Title = "Freaky", Icon = "skull" }),
+    ReAnimations = Window:AddTab({ Title = "Re-Animations", Icon = "person-standing"}),
+    Animations = Window:AddTab({ Title = "Animation Packs", Icon = "folder"}),
     Scripts = Window:AddTab({ Title = "Scripts", Icon = "scroll"}),
     Protections = Window:AddTab({ Title = "Protections", Icon = "shield" }),
+    Utilities = Window:AddTab({ Title = "Utilities", Icon = "wrench" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+
+-- Developer Tab
 
 if developerScript then
     Tabs.Developer = Window:AddTab({ Title = "Developer", Icon = "bug" })
 end
 
+-- Config Setup Shit
+
 local Options = Fluent.Options
-
-
-
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
@@ -81,148 +94,28 @@ else
     })
 end
 
+
+if not inmicup and not developerScript then
+    Window:Dialog({
+        Title = "⚠️ Warning",
+        Content = "This script is not made for this game. Some features may lead to a ban.\n\nDo you want to continue?",
+        Buttons = {
+            { 
+                Title = "Yes",
+                Callback = function()
+                    print("Confirmed the dialog.")
+                end 
+            }, {
+                Title = "No",
+                Callback = function()
+                    Fluent:Destroy()
+                end 
+            }
+        }
+    })
+end
+
 -- Main Tab Functions
-
-
-getgenv().bangSpeed = 1
-
-local function findPlayerByName(name)
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        if player.DisplayName:lower() == name:lower() then
-            return player
-        end
-    end
-    return nil
-end
-
-local function bang_plr_bypass(target)
-    if getgenv().bangScriptLoaded then
-        Fluent:Notify({
-            Title = "Failed",
-            Content = "Already loaded bang bypass!",
-            Duration = 5
-        })
-        return
-    end
-
-    getgenv().bangScriptLoaded = true
-    getgenv().enabled = true
-    getgenv().unload = false
-
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local LocalPlayer = Players.LocalPlayer
-    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local Humanoid = Character:WaitForChild("Humanoid")
-    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-
-    local bangAnim = Instance.new("Animation")
-    bangAnim.AnimationId = "rbxassetid://5918726674"
-    local bang = Humanoid:LoadAnimation(bangAnim)
-    bang.Looped = true
-    bang:Play(0.1, 1, 1)
-
-    getgenv().bangAnimation = bang
-
-    getgenv().bangLoop = RunService.Stepped:Connect(function()
-        if getgenv().unload then
-            bang:Stop()
-            bangAnim:Destroy()
-            getgenv().bangScriptLoaded = false
-            return
-        end
-
-        if bang.Speed ~= getgenv().bangSpeed then
-            bang:AdjustSpeed(getgenv().bangSpeed)
-        end
-
-        if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
-            HumanoidRootPart.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 1.1)
-        end
-    end)
-
-    getgenv().bangDied = Humanoid.Died:Connect(function()
-        bang:Stop()
-        bangAnim:Destroy()
-        getgenv().bangScriptLoaded = false
-    end)
-end
-
-local function bang_plr_bypass_off()
-    if getgenv().bangLoop then getgenv().bangLoop:Disconnect() end
-    if getgenv().bangDied then getgenv().bangDied:Disconnect() end
-
-    if getgenv().bangAnimation then
-        getgenv().bangAnimation:Stop()
-        getgenv().bangAnimation:Destroy()
-        getgenv().bangAnimation = nil
-    end
-
-    getgenv().bangScriptLoaded = false
-    getgenv().unload = nil
-    getgenv().enabled = false
-end
-
-
-local BangPlayerInput = Tabs.Main:AddInput("BangPlayerInput", {
-    Title = "Bang Player",
-    Description = "Enter the player to bang",
-    Default = "",
-    Placeholder = "Player Name",
-    Numeric = false,
-    Finished = true,
-    Callback = function(displayName)
-        local targetPlayer = nil
-        local lowerDisplayName = displayName:lower()
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player.DisplayName:lower() == lowerDisplayName then
-                targetPlayer = player
-                break
-            end
-        end
-        if targetPlayer then
-            bang_plr_bypass(targetPlayer)
-            Fluent:Notify({
-                Title = "Notification",
-                Content = "Banging player: " .. displayName,
-                Duration = 5
-            })
-        else
-            Fluent:Notify({
-                Title = "Notification",
-                Content = "Player not found: " .. displayName,
-                Duration = 5
-            })
-            warn("Player not found.")
-        end
-    end
-})
-
-local BangPlayerSpeedSlider = Tabs.Main:AddSlider("BangPlayerSpeedSlider", {
-    Title = "Bang Player Speed",
-    Description = "Adjust the speed of banging the player",
-    Default = 1,
-    Min = 0.1,
-    Max = 20,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().bangSpeed = Value
-    end
-})
-
-Tabs.Main:AddButton({
-    Title = "Unbang",
-    Description = "Stop banging the player",
-    Callback = function()
-        bang_plr_bypass_off()
-        Fluent:Notify({
-            Title = "Notification",
-            Content = "Stopped banging the player",
-            Duration = 5
-        })
-    end
-})
 
 
 local spinSpeed = 10
@@ -270,62 +163,6 @@ local SpinSpeedSlider = Tabs.Main:AddSlider("SpinSpeedSlider", {
     end
 })
 
---Exploits
-
-
-local Players = game:GetService("Players")
-
-local function printAllPlayerUsernames()
-    local playerList = Players:GetPlayers()
-    
-    for _, player in ipairs(playerList) do
-        print(player.Name)
-    end
-end
-
-printAllPlayerUsernames()
-
-local baseplate
-
-local function createBaseplate()
-    baseplate = Instance.new("Part")
-    baseplate.Size = Vector3.new(1024, 1, 1024)
-    baseplate.Position = Vector3.new(0, -0.505, 0)
-    baseplate.Anchored = true
-    baseplate.Name = "Baseplate"
-    baseplate.Material = Enum.Material.Plastic
-    baseplate.Color = Color3.fromRGB(114, 229, 114)
-    baseplate.Parent = workspace
-
-    local texture = Instance.new("Texture")
-    texture.Texture = "rbxassetid://10442413242"
-    texture.StudsPerTileU = 10
-    texture.StudsPerTileV = 10
-    texture.Face = Enum.NormalId.Top
-    texture.Color3 = Color3.fromRGB(114, 229, 114)
-    texture.Parent = baseplate
-end
-
-local function removeBaseplate()
-    if baseplate then
-        baseplate:Destroy()
-        baseplate = nil
-    end
-end
-
-
-local BaseplateToggle = Tabs.Exploits:AddToggle("BaseplateToggle", {
-    Title = "Create Baseplate",
-    Description = "Toggle to create or remove a baseplate",
-    Default = false,
-    Callback = function(state)
-        if state then
-            createBaseplate()
-        else
-            removeBaseplate()
-        end
-    end
-})
 
 
 -- Movement Tab Functions
@@ -559,6 +396,288 @@ local SprintSpeedSlider = Tabs.Movement:AddSlider("SprintSpeedSlider", {
 })
 
 
+-- Visuals Tab Functions
+
+local ESPHandler = {
+    Enabled = false,
+    PlayerData = {},
+}
+
+local function createNameESP(player, font, baseTextSize, boneOffset)
+
+    if player.Character.Head:FindFirstChild("NameESP") then
+        return
+    end
+
+    local BillboardGui = Instance.new("BillboardGui")
+    local TextLabel = Instance.new("TextLabel")
+
+    BillboardGui.Name = "NameESP"
+    BillboardGui.Adornee = player.Character.Head
+    BillboardGui.Size = UDim2.new(0, 100, 0, 40)
+    BillboardGui.StudsOffset = boneOffset
+    BillboardGui.AlwaysOnTop = true
+
+    TextLabel.Parent = BillboardGui
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Text = player.DisplayName
+    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+    TextLabel.TextColor3 = Color3.new(1, 1, 1)
+    TextLabel.TextStrokeTransparency = 0.5
+    TextLabel.TextSize = baseTextSize
+    TextLabel.Font = font
+
+    BillboardGui.Parent = player.Character.Head
+
+    local renderConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if player.Character and player.Character:FindFirstChild("Head") then
+            local camera = game.Workspace.CurrentCamera
+            local distance = (camera.CFrame.Position - player.Character.Head.Position).Magnitude
+            if distance < 50 then
+                TextLabel.TextSize = math.clamp(baseTextSize + (25 - baseTextSize) * (1 - distance / 50), baseTextSize, 25)
+            else
+                TextLabel.TextSize = baseTextSize
+            end
+        end
+    end)
+
+    ESPHandler.PlayerData[player] = {
+        BillboardGui = BillboardGui,
+        RenderConnection = renderConnection,
+    }
+end
+
+local function disableDefaultName(player)
+    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+        player.Character:FindFirstChildOfClass("Humanoid").DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+    end
+end
+
+local function removeNameESP(player)
+    local data = ESPHandler.PlayerData[player]
+    if data then
+
+        if data.BillboardGui and data.BillboardGui.Parent then
+            data.BillboardGui:Destroy()
+        end
+
+        if data.RenderConnection then
+            data.RenderConnection:Disconnect()
+        end
+
+        ESPHandler.PlayerData[player] = nil
+    end
+
+    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+        player.Character:FindFirstChildOfClass("Humanoid").DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+    end
+end
+local function applyESPToAllPlayers(font, baseTextSize, boneOffset)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            createNameESP(player, font, baseTextSize, boneOffset)
+            disableDefaultName(player)
+        end
+    end
+end
+
+function ESPHandler:Enable(font, baseTextSize, boneOffset)
+    if self.Enabled then return end
+    self.Enabled = true
+
+    applyESPToAllPlayers(font, baseTextSize, boneOffset)
+
+    self.PlayerAddedConnection = game.Players.PlayerAdded:Connect(function(player)
+        player.CharacterAdded:Connect(function(character)
+            if self.Enabled and character:FindFirstChild("Head") then
+                createNameESP(player, font, baseTextSize, boneOffset)
+                disableDefaultName(player)
+            end
+        end)
+
+        if player.Character and player.Character:FindFirstChild("Head") then
+            createNameESP(player, font, baseTextSize, boneOffset)
+            disableDefaultName(player)
+        end
+    end)
+
+    self.ScanLoop = spawn(function()
+        while self.Enabled do
+            applyESPToAllPlayers(font, baseTextSize, boneOffset)
+            wait(1)
+        end
+    end)
+end
+
+function ESPHandler:Disable()
+    if not self.Enabled then return end
+    self.Enabled = false
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        removeNameESP(player)
+    end
+
+    if self.PlayerAddedConnection then
+        self.PlayerAddedConnection:Disconnect()
+        self.PlayerAddedConnection = nil
+    end
+
+    if self.ScanLoop then
+        self.ScanLoop = nil
+    end
+end
+
+local section = Tabs.Visuals:AddSection("Name Settings")
+
+local fonts = {
+    "Arial",
+    "GothamBold",
+    "JosefinSans",
+    "Bodoni",
+    "SourceSans",
+    "Nunito"
+}
+
+local selectedFont = Enum.Font.Arial
+local baseTextSize = 12
+local boneOffset = Vector3.new(0, 2, 0)
+
+local nameESP = Tabs.Visuals:AddToggle("nameESP", {
+    Title = "Overhaul Names",
+    Description = "Renders names above players",
+    Default = true,
+    Callback = function(state)
+        if state then
+            ESPHandler:Enable(selectedFont, baseTextSize, boneOffset)
+        else
+            ESPHandler:Disable()
+        end
+    end
+})
+
+local bones = {"Head", "Chest", "Foot"}
+
+local boneSelection = Tabs.Visuals:AddDropdown("BoneSelection", {
+    Title = "Text Position",
+    Values = bones,
+    Default = 1,
+    Multi = false,
+    Callback = function(value)
+        selectedBone = value
+        if selectedBone == "Head" then
+            boneOffset = Vector3.new(0, 2, 0)
+        elseif selectedBone == "Chest" then
+            boneOffset = Vector3.new(0, -1, 0)
+        elseif selectedBone == "Foot" then
+            boneOffset = Vector3.new(0, -5, 0)
+        end
+        print(selectedBone, boneOffset)
+        for player, data in pairs(ESPHandler.PlayerData) do
+            if data.BillboardGui then
+                if selectedBone == "Head" then
+                    data.BillboardGui.StudsOffset = Vector3.new(0, 2, 0)
+                elseif selectedBone == "Chest" then
+                    data.BillboardGui.StudsOffset = Vector3.new(0, -1, 0)
+                elseif selectedBone == "Foot" then
+                    data.BillboardGui.StudsOffset = Vector3.new(0, -5, 0)
+                end
+            end
+        end
+    end
+})
+
+local TextSizeSlider = Tabs.Visuals:AddSlider("TextSizeSlider", {
+    Title = "Text Size",
+    Description = "Adjust the base size of the text",
+    Default = 12,
+    Min = 1,
+    Max = 32,
+    Rounding = 0,
+    Callback = function(Value)
+        baseTextSize = Value
+        if ESPHandler.Enabled then
+            ESPHandler:Disable()
+            ESPHandler:Enable(selectedFont, baseTextSize, boneOffset)
+        end
+    end
+})
+
+local fontDropdown = Tabs.Visuals:AddDropdown("FontDropdown", {
+    Title = "Select Font",
+    Values = fonts,
+    Default = 1,
+    Multi = false,
+    Callback = function(value)
+        selectedFont = Enum.Font[value]
+        if ESPHandler.Enabled then
+            ESPHandler:Disable()
+            ESPHandler:Enable(selectedFont, baseTextSize, boneOffset)
+        end
+    end
+})
+
+
+
+
+
+
+
+-- Exploits Tab Functions
+
+
+local Players = game:GetService("Players")
+
+local function printAllPlayerUsernames()
+    local playerList = Players:GetPlayers()
+    
+    for _, player in ipairs(playerList) do
+        print(player.Name)
+    end
+end
+
+
+local baseplate
+
+local function createBaseplate()
+    baseplate = Instance.new("Part")
+    baseplate.Size = Vector3.new(1024, 1, 1024)
+    baseplate.Position = Vector3.new(0, -0.505, 0)
+    baseplate.Anchored = true
+    baseplate.Name = "Baseplate"
+    baseplate.Material = Enum.Material.Plastic
+    baseplate.Color = Color3.fromRGB(114, 229, 114)
+    baseplate.Parent = workspace
+
+    local texture = Instance.new("Texture")
+    texture.Texture = "rbxassetid://10442413242"
+    texture.StudsPerTileU = 10
+    texture.StudsPerTileV = 10
+    texture.Face = Enum.NormalId.Top
+    texture.Color3 = Color3.fromRGB(114, 229, 114)
+    texture.Parent = baseplate
+end
+
+local function removeBaseplate()
+    if baseplate then
+        baseplate:Destroy()
+        baseplate = nil
+    end
+end
+
+
+local BaseplateToggle = Tabs.Exploits:AddToggle("BaseplateToggle", {
+    Title = "Create Baseplate",
+    Description = "Toggle to create or remove a baseplate",
+    Default = false,
+    Callback = function(state)
+        if state then
+            createBaseplate()
+        else
+            removeBaseplate()
+        end
+    end
+})
+
 -- Teleports Tab Functions
 
 if inmicup then
@@ -642,7 +761,152 @@ local TpToPlayerInput = Tabs.Teleports:AddInput("TpToPlayerInput", {
     end
 })
 
--- Animations
+-- Freaky Tab Functions
+
+
+getgenv().bangSpeed = 1
+
+local function findPlayerByName(name)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.DisplayName:lower() == name:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+local function bang_plr_bypass(target)
+    if getgenv().bangScriptLoaded then
+        Fluent:Notify({
+            Title = "Failed",
+            Content = "Already loaded bang bypass!",
+            Duration = 5
+        })
+        return
+    end
+
+    getgenv().bangScriptLoaded = true
+    getgenv().enabled = true
+    getgenv().unload = false
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+    local bangAnim = Instance.new("Animation")
+    bangAnim.AnimationId = "rbxassetid://5918726674"
+    local bang = Humanoid:LoadAnimation(bangAnim)
+    bang.Looped = true
+    bang:Play(0.1, 1, 1)
+
+    getgenv().bangAnimation = bang
+
+    getgenv().bangLoop = RunService.Stepped:Connect(function()
+        if getgenv().unload then
+            bang:Stop()
+            bangAnim:Destroy()
+            getgenv().bangScriptLoaded = false
+            return
+        end
+
+        if bang.Speed ~= getgenv().bangSpeed then
+            bang:AdjustSpeed(getgenv().bangSpeed)
+        end
+
+        if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
+            HumanoidRootPart.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 1.1)
+        end
+    end)
+
+    getgenv().bangDied = Humanoid.Died:Connect(function()
+        bang:Stop()
+        bangAnim:Destroy()
+        getgenv().bangScriptLoaded = false
+    end)
+end
+
+local function bang_plr_bypass_off()
+    if getgenv().bangLoop then getgenv().bangLoop:Disconnect() end
+    if getgenv().bangDied then getgenv().bangDied:Disconnect() end
+
+    if getgenv().bangAnimation then
+        getgenv().bangAnimation:Stop()
+        getgenv().bangAnimation:Destroy()
+        getgenv().bangAnimation = nil
+    end
+
+    getgenv().bangScriptLoaded = false
+    getgenv().unload = nil
+    getgenv().enabled = false
+end
+
+
+local BangPlayerInput = Tabs.Freaky:AddInput("BangPlayerInput", {
+    Title = "Bang Player",
+    Description = "Enter the player to bang",
+    Default = "",
+    Placeholder = "Player Name",
+    Numeric = false,
+    Finished = true,
+    Callback = function(displayName)
+        local targetPlayer = nil
+        local lowerDisplayName = displayName:lower()
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            if player.DisplayName:lower() == lowerDisplayName then
+                targetPlayer = player
+                break
+            end
+        end
+        if targetPlayer then
+            bang_plr_bypass(targetPlayer)
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Banging player: " .. displayName,
+                Duration = 5
+            })
+        else
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Player not found: " .. displayName,
+                Duration = 5
+            })
+            warn("Player not found.")
+        end
+    end
+})
+
+local BangPlayerSpeedSlider = Tabs.Freaky:AddSlider("BangPlayerSpeedSlider", {
+    Title = "Bang Player Speed",
+    Description = "Adjust the speed of banging the player",
+    Default = 1,
+    Min = 0.1,
+    Max = 20,
+    Rounding = 1,
+    Callback = function(Value)
+        getgenv().bangSpeed = Value
+    end
+})
+
+Tabs.Freaky:AddButton({
+    Title = "Unbang",
+    Description = "Stop banging the player",
+    Callback = function()
+        bang_plr_bypass_off()
+        Fluent:Notify({
+            Title = "Notification",
+            Content = "Stopped banging the player",
+            Duration = 5
+        })
+    end
+})
+
+-- Reanimation Stuff
+
+-- Animation Packs
 
 local animationPacks = {
     ["Zombie Animation Package"] = {
@@ -1016,6 +1280,64 @@ Tabs.Protections:AddButton({
         game:GetService("VoiceChatService"):joinVoice() 
     end
 })
+
+-- Utilities Tab Functions
+
+local MiddleClickAddFriendsEnabled = false
+
+local MiddleClickAddFriendsToggle = Tabs.Utilities:AddToggle("MiddleClickAddFriendsToggle", {
+    Title = "Middle Click Add Friends",
+    Description = "Enable Middle-click to send friend requests",
+    Default = false,
+    Callback = function(state)
+        MiddleClickAddFriendsEnabled = state
+    end
+})
+
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local function retryCall(f, ...)
+    while not pcall(f, ...) do
+        RunService.Heartbeat:Wait()
+    end
+end
+
+local function getPlayerUnderMouse()
+    local MousePos = UserInputService:GetMouseLocation()
+    local Camera = workspace.CurrentCamera
+
+    local UnitRay = Camera:ScreenPointToRay(MousePos.X, MousePos.Y)
+    local RaycastResult = workspace:Raycast(UnitRay.Origin, UnitRay.Direction * 1000)
+
+    if RaycastResult and RaycastResult.Instance then
+        local hitPart = RaycastResult.Instance
+        local character = hitPart:FindFirstAncestorOfClass("Model")
+        if character and Players:GetPlayerFromCharacter(character) then
+            return character, Players:GetPlayerFromCharacter(character)
+        end
+    end
+
+    return nil, nil
+end
+
+-- Maybe will add cham later but kinda pointless
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not MiddleClickAddFriendsEnabled then return end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton3 then
+        local character, player = getPlayerUnderMouse()
+
+        if character and player then
+            retryCall(function()
+                StarterGui:SetCore("PromptSendFriendRequest", player)
+            end)
+        end
+    end
+end)
+
 -- Settings Tab Functions
 
 -- Developer Tab Options
