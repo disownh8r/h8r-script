@@ -41,7 +41,7 @@ This script is for **educational and entertainment purposes only**. Using exploi
 
 ## Credits
 - **Monte** (Creator)
-- **Fluent UI Library** (UI Framework)
+- **[Fluent UI Library](https://github.com/dawid-scripts/Fluent)** (UI Framework) (- **Create Baseplate** - Adds a new platform in the world.)
 - **Various Contributors** (Referenced scripts and ideas)
 
 ---
