@@ -4,7 +4,7 @@ A Roblox Lua script designed for **Mic Up** but can be used in other games. This
 
 ## Loadstring
 
-- `https://raw.githubusercontent.com/disownh8r/h8r-script/main/source.lua`
+- `loadstring(game:HttpGet("https://raw.github.com/disownh8r/h8r-script/main/source.lua"))()`
 
 ## Features
 
