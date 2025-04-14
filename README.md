@@ -2,6 +2,10 @@
 
 A Roblox Lua script designed for **Mic Up** but can be used in other games. This script provides various utilities and trolling features for users.
 
+## Loadstring
+
+- `https://raw.githubusercontent.com/disownh8r/h8r-script/main/source.lua`
+
 ## Features
 
 ### 🏃 Movement Enhancements
