@@ -678,6 +678,14 @@ local BaseplateToggle = Tabs.Exploits:AddToggle("BaseplateToggle", {
     end
 })
 
+Tabs.Exploits:AddButton({
+    Title = "Walk on Walls",
+    Description = "Enable walking on walls. Reset to disable.",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/wallwalker.lua"))()
+    end
+})
+
 -- Teleports Tab Functions
 
 if inmicup then
@@ -1197,6 +1205,8 @@ Tabs.Scripts:AddButton({
 
 -- Protections Tab Functions
 
+local vcSection = Tabs.Protections:AddSection("Voice Chat")
+
 local vc_service = game:GetService("VoiceChatService")
 local enabled_vc = vc_service:IsVoiceEnabledForUserIdAsync(game.Players.LocalPlayer.UserId)
 local vc_inter = game:GetService("VoiceChatInternal")
@@ -1205,7 +1215,7 @@ local retryCooldown = 3
 local VcBanProtectionToggle = Tabs.Protections:AddToggle("VcBanProtectionToggle", 
 {
     Title = "VC Ban Protection", 
-    Description = "Prevents you from getting banned from voice chat",
+    Description = "⚠️ Warning. While this will unban you from voice-chat, if you say crazy shit and get reported you will get account banned.",
     Default = true,
     Callback = function(state)
         if state then
@@ -1281,6 +1291,8 @@ Tabs.Protections:AddButton({
     end
 })
 
+
+
 -- Utilities Tab Functions
 
 local MiddleClickAddFriendsEnabled = false
@@ -1288,7 +1300,7 @@ local MiddleClickAddFriendsEnabled = false
 local MiddleClickAddFriendsToggle = Tabs.Utilities:AddToggle("MiddleClickAddFriendsToggle", {
     Title = "Middle Click Add Friends",
     Description = "Enable Middle-click to send friend requests",
-    Default = false,
+    Default = true,
     Callback = function(state)
         MiddleClickAddFriendsEnabled = state
     end
